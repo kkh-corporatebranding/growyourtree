@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}img{max-width:100%}</style>
+<title>Grow Your Tree</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800&display=swap">
+<style>
+/* Layout: one phone-first column with the tree on top that stays in view, and the intro, questions and result changing underneath.
+   COLOURS: change the tokens below to restyle the whole page. */
+:root{
+  --bg:#EAF5FA; --surface:#FFFFFF; --ink:#12355B; --muted:#4A6483; --line:#BFD9EA;
+  --accent:#1F6B3A; --accent-ink:#FFFFFF; --accent-soft:#DFF3D5;
+  --cta-bg:#12355B; --cta-ink:#FFFFFF;
+  --sky:#D9EEF8; --cloud:#FFFFFF; --grass:#6DB35F; --soil:#7A4E32; --root:#C99A6B; --trunk:#8B5E3C;
+  --leaf1:#5DBB63; --leaf2:#3C9254;
+  --f-screening:#FF8FA0; --f-size:#FFD35C; --f-supp:#FFB04D; --f-sex:#7CC8F5;
+  --shadow:rgba(18,53,91,.16);
+  --font-display:'Fredoka','Trebuchet MS',system-ui,sans-serif;
+  --font-body:'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D1E31; --surface:#15304B; --ink:#E8F2FA; --muted:#A6BED4; --line:#2B4B6A;
+    --accent:#6CCB78; --accent-ink:#0D1E31; --accent-soft:#1D4730;
+    --cta-bg:#1E4C7A; --cta-ink:#FFFFFF;
+    --sky:#123252; --cloud:#2B4B6A; --grass:#3F8A4A; --soil:#5A3924; --trunk:#9A6B45;
+    --leaf1:#5FC06A; --leaf2:#3C9254; --shadow:rgba(0,0,0,.45);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0D1E31; --surface:#15304B; --ink:#E8F2FA; --muted:#A6BED4; --line:#2B4B6A;
+  --accent:#6CCB78; --accent-ink:#0D1E31; --accent-soft:#1D4730;
+  --cta-bg:#1E4C7A; --cta-ink:#FFFFFF;
+  --sky:#123252; --cloud:#2B4B6A; --grass:#3F8A4A; --soil:#5A3924; --trunk:#9A6B45;
+  --leaf1:#5FC06A; --leaf2:#3C9254; --shadow:rgba(0,0,0,.45);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:var(--font-body); font-size:17px; line-height:1.45; font-weight:600;
+  -webkit-text-size-adjust:100%; text-size-adjust:100%; -webkit-tap-highlight-color:transparent;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:20px 32px;
+}
+.shell{max-width:480px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.screen{display:flex;flex-direction:column;gap:14px}
+h1,h2,h3,p{margin:0}
+.title{font-family:var(--font-display);font-weight:700;font-size:clamp(44px,14vw,64px);line-height:1;text-wrap:balance}
+.title span{color:var(--accent)}
+.lede{font-size:19px;line-height:1.4;color:var(--muted);max-width:36ch}
+.small{font-size:14px;color:var(--muted)}
+.btn{
+  font:inherit;font-weight:800;border:2px solid transparent;border-radius:16px;
+  padding:13px 20px;min-height:52px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  text-decoration:none;text-align:center;
+}
+.btn:focus-visible,.opt:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+.btn.primary{background:var(--accent);color:var(--accent-ink);font-size:18px}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn.wide{width:100%}
+
+/* tree */
+.treebox{margin:0;background:var(--sky);border:2px solid var(--line);border-radius:26px;overflow:hidden;box-shadow:0 10px 24px var(--shadow)}
+.treebox svg{display:block;width:100%;height:clamp(190px,34vh,300px);height:clamp(190px,34dvh,300px)}
+.cloud{fill:var(--cloud)}
+.grass{fill:var(--grass)}
+.soil{fill:var(--soil)}
+.trunk{fill:var(--trunk)}
+.branch{stroke:var(--trunk);stroke-width:7;stroke-linecap:round;fill:none}
+.bud{fill:var(--leaf1);stroke:var(--leaf2);stroke-width:2;transition:opacity .3s ease,transform .3s ease;transform-box:fill-box;transform-origin:center}
+.bud.gone{opacity:0;transform:scale(.2)}
+.leaf1{fill:var(--leaf1)}
+.leaf2{fill:var(--leaf2)}
+.fruit{stroke:#FFFFFF;stroke-width:3}
+.shine{fill:#FFFFFF;opacity:.45}
+.root{stroke:var(--root);stroke-width:5;fill:none;stroke-linecap:round}
+.root.thin{stroke-width:3}
+.grow{opacity:0;transform:scale(.2);transform-box:fill-box;transform-origin:center;transition:transform .7s cubic-bezier(.2,1.25,.35,1),opacity .4s ease}
+.grow.on{opacity:1;transform:scale(1)}
+#g-roots{transform-origin:50% 0%}
+
+/* steps */
+.dots{display:flex;gap:8px;justify-content:center}
+.dots i{width:14px;height:14px;border-radius:50%;border:2px solid var(--line);background:var(--surface);transition:background .3s,border-color .3s}
+.dots i.done{background:var(--accent);border-color:var(--accent)}
+.dots i.now{border-color:var(--ink)}
+.steplabel{display:flex;justify-content:center;font-weight:800;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.q{font-family:var(--font-display);font-weight:600;font-size:clamp(23px,6.6vw,29px);line-height:1.18;text-wrap:balance}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{
+  display:flex;align-items:center;gap:12px;width:100%;text-align:left;font:inherit;font-weight:700;font-size:18px;line-height:1.25;
+  background:var(--surface);color:var(--ink);border:2px solid var(--line);border-radius:18px;padding:14px 16px;min-height:56px;cursor:pointer
+}
+.opt .ring{width:24px;height:24px;border-radius:50%;border:2px solid var(--line);flex:none;display:flex;align-items:center;justify-content:center}
+.opt .ring svg{opacity:0}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt:disabled{cursor:default;color:var(--ink)}
+.opt.sel{border-color:var(--accent);background:var(--accent-soft)}
+.opt.sel .ring{background:var(--accent);border-color:var(--accent)}
+.opt.sel .ring svg{opacity:1}
+.opt.dim{opacity:.55}
+.reply{background:var(--surface);border:2px solid var(--line);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:10px;box-shadow:0 8px 20px var(--shadow)}
+.reply p{font-size:18px;line-height:1.4}
+
+/* result */
+.rtitle{font-family:var(--font-display);font-weight:700;font-size:clamp(34px,10vw,44px);line-height:1.05;text-wrap:balance}
+.checks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.checks label{display:flex;gap:12px;align-items:flex-start;background:var(--surface);border:2px solid var(--line);border-radius:16px;padding:13px 14px;font-size:17px;line-height:1.3;cursor:pointer}
+.checks input{width:22px;height:22px;margin:1px 0 0;flex:none;accent-color:var(--accent)}
+.checks input:checked + span{text-decoration:line-through;opacity:.7}
+.empty{background:var(--accent-soft);border-radius:16px;padding:14px 16px;font-size:18px}
+.h3{font-family:var(--font-display);font-weight:600;font-size:23px}
+.cta{background:var(--cta-bg);color:var(--cta-ink);border-radius:24px;padding:22px;display:flex;flex-direction:column;gap:12px}
+.cta h3{font-family:var(--font-display);font-weight:600;font-size:27px;line-height:1.1}
+.cta p{font-size:16px;opacity:.95}
+.cta .btn{background:#FFFFFF;color:#12355B}
+.foot{font-size:13px;color:var(--muted);text-align:center}
+@media (prefers-reduced-motion: reduce){.grow,.bud,.dots i{transition:none}}
+</style>
+
+<div class="shell">
+  <figure class="treebox">
+    <svg id="tree" viewBox="0 0 320 300" role="img" aria-label="Your tree. It grows a new part with each answer.">
+      <g class="cloud"><ellipse cx="52" cy="40" rx="26" ry="9"/><ellipse cx="66" cy="33" rx="14" ry="9"/></g>
+      <g class="cloud"><ellipse cx="270" cy="58" rx="24" ry="8"/><ellipse cx="258" cy="51" rx="13" ry="8"/></g>
+      <rect class="grass" x="-600" y="232" width="1520" height="12"/>
+      <rect class="soil" x="-600" y="242" width="1520" height="58"/>
+
+      <g id="g-roots" class="grow">
+        <path class="root" d="M160 242 C158 262 140 272 118 292"/>
+        <path class="root" d="M160 242 C162 262 182 272 204 292"/>
+        <path class="root" d="M160 242 L160 296"/>
+        <path class="root thin" d="M140 270 C128 272 118 270 108 266"/>
+        <path class="root thin" d="M182 270 C194 272 204 270 214 266"/>
+      </g>
+
+      <path class="trunk" d="M152 238 L155 150 L165 150 L168 238 Z"/>
+      <path class="branch" d="M160 196 L102 140"/>
+      <path class="branch" d="M160 196 L218 140"/>
+      <path class="branch" d="M160 170 L160 96"/>
+
+      <circle class="bud" id="b-screening" cx="160" cy="92" r="8"/>
+      <circle class="bud" id="b-size" cx="102" cy="136" r="8"/>
+      <circle class="bud" id="b-supp" cx="218" cy="136" r="8"/>
+      <circle class="bud" id="b-sex" cx="160" cy="152" r="8"/>
+
+      <g id="g-size" class="grow">
+        <circle class="leaf1" cx="102" cy="134" r="32"/><circle class="leaf2" cx="84" cy="146" r="20"/>
+        <circle class="fruit" style="fill:var(--f-size)" cx="102" cy="132" r="13"/><ellipse class="shine" cx="97" cy="127" rx="4" ry="2.5"/>
+      </g>
+      <g id="g-supp" class="grow">
+        <circle class="leaf1" cx="218" cy="134" r="32"/><circle class="leaf2" cx="236" cy="146" r="20"/>
+        <circle class="fruit" style="fill:var(--f-supp)" cx="218" cy="132" r="13"/><ellipse class="shine" cx="213" cy="127" rx="4" ry="2.5"/>
+      </g>
+      <g id="g-sex" class="grow">
+        <circle class="leaf1" cx="160" cy="154" r="26"/>
+        <circle class="fruit" style="fill:var(--f-sex)" cx="160" cy="154" r="12"/><ellipse class="shine" cx="155" cy="149" rx="4" ry="2.5"/>
+      </g>
+      <g id="g-screening" class="grow">
+        <circle class="leaf1" cx="160" cy="90" r="40"/><circle class="leaf2" cx="132" cy="102" r="26"/><circle class="leaf2" cx="188" cy="102" r="26"/>
+        <circle class="fruit" style="fill:var(--f-screening)" cx="160" cy="88" r="16"/><ellipse class="shine" cx="154" cy="82" rx="5" ry="3"/>
+      </g>
+    </svg>
+  </figure>
+
+  <main>
+    <!-- INTRO -->
+    <section id="intro" class="screen">
+      <h1 class="title">Grow Your <span>Tree</span></h1>
+      <p class="lede">Answer five quick questions. Your tree grows with every answer, and you finish with questions to take to your doctor.</p>
+      <button class="btn primary wide" id="startBtn" type="button">Start growing</button>
+      <p class="small">About 2 minutes. No right or wrong answers. Nothing you answer is saved or sent.</p>
+    </section>
+
+    <!-- QUESTIONS -->
+    <section id="ask" class="screen" hidden>
+      <div class="dots" id="dots" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="steplabel"><span id="stepCount"></span></div>
+      <h2 class="q" id="qText"></h2>
+      <div class="opts" id="opts"></div>
+      <div class="reply" id="reply" role="status" aria-live="polite" hidden>
+        <p id="replyText"></p>
+        <button class="btn primary wide" id="nextBtn" type="button">Next</button>
+      </div>
+    </section>
+
+    <!-- RESULT -->
+    <section id="result" class="screen" hidden>
+      <h2 class="rtitle">Your tree is growing!</h2>
+      <p class="lede" id="resultLede"></p>
+      <h3 class="h3">Questions to ask your doctor</h3>
+      <ul class="checks" id="checks"></ul>
+      <p class="empty" id="noItems" hidden>You are off to a great start. A check-up can confirm it.</p>
+      <div class="cta">
+        <h3>Ready to take the next step?</h3>
+        <p>Learn more about preconception services at KKH.</p>
+        <a class="btn wide" id="ctaLink" href="#" target="_blank" rel="noopener">Learn more at KKH</a>
+        <p id="ctaContact"></p>
+      </div>
+      <button class="btn ghost wide" id="againBtn" type="button">Grow another tree</button>
+      <p class="small" style="text-align:center">Take a screenshot to save your list.</p>
+    </section>
+  </main>
+
+  <p class="foot">General information only, not medical advice.</p>
+</div>
+
+<script>
+(function(){
+  /* ---- EDIT THESE BEFORE PUBLISHING ---- */
+  var CONFIG = {
+    linkUrl: "",                                  /* paste the KKH preconception page link here, inside the quotes */
+    linkLabel: "Learn more at KKH",
+    contactText: "Or contact [NUMBER / EMAIL]"    /* replace with the real number or email */
+  };
+
+  /* Each step: the tree part it grows, the question, and three answers.
+     An answer with item:null adds nothing to the checklist. */
+  var STEPS = [
+    {id:"screening", name:"Screening", color:"var(--f-screening)",
+     q:"Have you and your partner had a preconception health check?",
+     opts:[
+      {label:"Yes, we've had one", reply:"Great start. Keep your results handy and ask if any follow-up is needed.", item:null},
+      {label:"We're thinking about it", reply:"Good instinct. It works best before you start trying, and it looks at both partners.", item:"Ask about a preconception health check for both of us."},
+      {label:"Not yet", reply:"That's okay, many couples start here. A check covers fertility, existing conditions, infections and immunity, and mental wellbeing.", item:"Ask about a preconception health check for both of us."}
+     ]},
+    {id:"size", name:"Size", color:"var(--f-size)",
+     q:"How are your daily habits right now?",
+     opts:[
+      {label:"Active, with balanced meals", reply:"Lovely base. A lifestyle review can help you keep it going.", item:null},
+      {label:"Could use some work", reply:"Small changes add up, and there is time before you start trying.", item:"Ask for a lifestyle review: weight, diet and physical activity."},
+      {label:"Not sure", reply:"A lifestyle review looks at weight, diet and activity, and gives you clear next steps.", item:"Ask for a lifestyle review: weight, diet and physical activity."}
+     ]},
+    {id:"supp", name:"Supplements", color:"var(--f-supp)",
+     q:"Do you know which vitamins are recommended before pregnancy?",
+     opts:[
+      {label:"Yes, I'm already taking them", reply:"Well done. Folic acid works best when it is started before you conceive.", item:null},
+      {label:"I've heard of them but haven't started", reply:"Starting before you conceive is the idea. A doctor can recommend what suits you.", item:"Ask which preconception vitamins, such as folic acid, are right for me."},
+      {label:"Not sure what's needed", reply:"Preconception vitamins like folic acid help prevent pregnancy complications and birth defects.", item:"Ask which preconception vitamins, such as folic acid, are right for me."}
+     ]},
+    {id:"sex", name:"Sex", color:"var(--f-sex)",
+     q:"Do you know when your most fertile days are?",
+     opts:[
+      {label:"Yes, I keep track", reply:"Great. Pair it with regular intimacy on your fertile days.", item:null},
+      {label:"Roughly", reply:"A closer look at your cycle can sharpen that.", item:"Ask for tips on identifying my fertile window."},
+      {label:"No idea", reply:"Quite common. Knowing your fertile window can help increase your chances.", item:"Ask for tips on identifying my fertile window."}
+     ]},
+    {id:"roots", name:"Roots: genetic screening", color:"var(--root)",
+     q:"Do you know if you and your partner are carriers of a genetic condition?",
+     opts:[
+      {label:"Yes, we've been screened", reply:"Brilliant. You can ask whether your results need any follow-up.", item:null},
+      {label:"Not sure", reply:"Many people don't know. Most carriers of recessive conditions have no symptoms.", item:"Ask about genetic screening, such as the Temasek Foundation PREDICT Programme (screens 80+ severe recessive disorders)."},
+      {label:"No, and it doesn't run in our families", reply:"A common assumption, but most carriers have no symptoms or family history.", item:"Ask about genetic screening, such as the Temasek Foundation PREDICT Programme (screens 80+ severe recessive disorders)."}
+     ]}
+  ];
+
+  var CHECK_ICON = '<svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 7.5 L6 10.5 L11.5 4" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  var $ = function(id){ return document.getElementById(id); };
+  var intro=$("intro"), ask=$("ask"), result=$("result");
+  var idx=0, picked=[], items=[];
+
+  function show(el){ [intro,ask,result].forEach(function(s){ s.hidden = (s!==el); }); }
+
+  function resetTree(){
+    STEPS.forEach(function(s){
+      $("g-"+s.id).classList.remove("on");
+      var b = $("b-"+s.id); if(b) b.classList.remove("gone");
+    });
+    $("tree").setAttribute("aria-label","Your tree. It grows a new part with each answer.");
+  }
+
+  function renderDots(){
+    var d = $("dots").children;
+    for(var i=0;i<d.length;i++){
+      d[i].className = i<idx ? "done" : (i===idx ? "now" : "");
+    }
+  }
+
+  function loadStep(){
+    var s = STEPS[idx];
+    renderDots();
+    $("stepCount").textContent = "Question "+(idx+1)+" of "+STEPS.length;
+    $("qText").textContent = s.q;
+    var box = $("opts"); box.innerHTML = "";
+    s.opts.forEach(function(o,i){
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "opt";
+      b.innerHTML = '<span class="ring">'+CHECK_ICON+'</span>';
+      var t = document.createElement("span"); t.textContent = o.label; b.appendChild(t);
+      b.addEventListener("click", function(){ pick(i, b); });
+      box.appendChild(b);
+    });
+    $("reply").hidden = true;
+  }
+
+  function pick(i, btn){
+    var s = STEPS[idx], o = s.opts[i];
+    var all = $("opts").children;
+    for(var k=0;k<all.length;k++){
+      all[k].disabled = true;
+      if(all[k]===btn){ all[k].classList.add("sel"); } else { all[k].hidden = true; }
+    }
+    picked.push(i);
+    if(o.item && items.indexOf(o.item)===-1) items.push(o.item);
+    $("g-"+s.id).classList.add("on");
+    var bud = $("b-"+s.id); if(bud) bud.classList.add("gone");
+    $("tree").setAttribute("aria-label","Your tree. "+(idx+1)+" of "+STEPS.length+" parts have grown.");
+    $("replyText").textContent = o.reply;
+    $("nextBtn").textContent = (idx===STEPS.length-1) ? "See my tree" : "Next";
+    $("reply").hidden = false;
+    try{ $("nextBtn").focus({preventScroll:true}); }catch(err){}
+  }
+
+  function finish(){
+    var ul = $("checks"); ul.innerHTML = "";
+    items.forEach(function(text,n){
+      var li = document.createElement("li");
+      var lab = document.createElement("label");
+      var inp = document.createElement("input"); inp.type = "checkbox"; inp.id = "chk"+n;
+      var sp = document.createElement("span"); sp.textContent = text;
+      lab.appendChild(inp); lab.appendChild(sp); li.appendChild(lab); ul.appendChild(li);
+    });
+    $("noItems").hidden = items.length>0;
+    $("resultLede").textContent = items.length>0
+      ? "Here are a few things worth asking about next."
+      : "You already know a lot, and your tree shows it.";
+    var link = $("ctaLink");
+    link.textContent = CONFIG.linkLabel;
+    link.href = CONFIG.linkUrl || "#";
+    $("ctaContact").textContent = CONFIG.contactText;
+    show(result);
+    window.scrollTo(0,0);
+  }
+
+  function start(){
+    idx=0; picked=[]; items=[];
+    resetTree();
+    show(ask); loadStep();
+    window.scrollTo(0,0);
+  }
+
+  $("startBtn").addEventListener("click", start);
+  $("againBtn").addEventListener("click", function(){ resetTree(); idx=0; picked=[]; items=[]; show(intro); window.scrollTo(0,0); });
+  $("nextBtn").addEventListener("click", function(){
+    if(idx===STEPS.length-1){ finish(); } else { idx++; loadStep(); }
+  });
+})();
+</script>
+</body>
+</html>
